@@ -1,10 +1,18 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.ocr import extract_text_from_file
+from app.core.database import init_db
+from app.routes import ocr, invoices
 
-app = FastAPI(title="Invoice Copilot API")
 
-# Configure CORS
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="Invoice Copilot API", lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,24 +21,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.post("/api/ocr")
-async def perform_ocr(file: UploadFile = File(...)):
-    """Upload an invoice file (PDF/Image) and extract the raw text using OCR."""
-    if not file:
-        raise HTTPException(status_code=400, detail="No file uploaded.")
-
-    try:
-        contents = await file.read()
-        extracted_text = extract_text_from_file(contents, file.filename)
-        return {
-            "filename": file.filename,
-            "text": extracted_text,
-            "size_bytes": len(contents),
-        }
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve)) from ve
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Internal server error: {str(e)}"
-        ) from e
+app.include_router(ocr.router)
+app.include_router(invoices.router)

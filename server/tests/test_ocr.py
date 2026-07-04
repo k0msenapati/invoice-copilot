@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock, patch
-from app.ocr import extract_text_from_file
+from app.services.ocr import extract_text_from_file
 
 
 def test_extract_text_from_text_file():
@@ -8,7 +8,7 @@ def test_extract_text_from_text_file():
     assert text == "Hello world, this is a plain text file."
 
 
-@patch("app.ocr.PdfReader")
+@patch("app.services.ocr.PdfReader")
 def test_extract_text_from_digital_pdf(mock_pdf_reader):
     mock_reader_instance = MagicMock()
     mock_page = MagicMock()
@@ -23,18 +23,16 @@ def test_extract_text_from_digital_pdf(mock_pdf_reader):
     mock_pdf_reader.assert_called_once()
 
 
-@patch("app.ocr.PdfReader")
-@patch("app.ocr.fitz.open")
-@patch("app.ocr.get_ocr_engine")
+@patch("app.services.ocr.PdfReader")
+@patch("app.services.ocr.fitz.open")
+@patch("app.services.ocr.get_ocr_engine")
 def test_extract_text_from_scanned_pdf(mock_get_ocr, mock_fitz_open, mock_pdf_reader):
-    # Mock pypdf returning no text (less than 50 chars)
     mock_reader_instance = MagicMock()
     mock_page_pypdf = MagicMock()
     mock_page_pypdf.extract_text.return_value = ""
     mock_reader_instance.pages = [mock_page_pypdf]
     mock_pdf_reader.return_value = mock_reader_instance
 
-    # Mock fitz (PyMuPDF)
     mock_doc = MagicMock()
     mock_page_fitz = MagicMock()
     mock_pix = MagicMock()
@@ -45,7 +43,6 @@ def test_extract_text_from_scanned_pdf(mock_get_ocr, mock_fitz_open, mock_pdf_re
     mock_doc.__iter__.return_value = [mock_page_fitz]
     mock_fitz_open.return_value = mock_doc
 
-    # Mock RapidOCR engine
     mock_engine = MagicMock()
     mock_engine.return_value = (
         [[None, "OCR Extracted Text from PDF Page", 0.99]],
@@ -60,9 +57,9 @@ def test_extract_text_from_scanned_pdf(mock_get_ocr, mock_fitz_open, mock_pdf_re
     mock_engine.assert_called_once()
 
 
-@patch("app.ocr.get_ocr_engine")
+@patch("app.services.ocr.get_ocr_engine")
 def test_extract_text_from_image(mock_get_ocr):
-    with patch("app.ocr.Image.open") as mock_image_open:
+    with patch("app.services.ocr.Image.open") as mock_image_open:
         mock_img = MagicMock()
         mock_img.convert.return_value = mock_img
         mock_image_open.return_value = mock_img

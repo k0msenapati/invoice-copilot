@@ -16,11 +16,6 @@ def get_ocr_engine():
 
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
-    """Extract text from PDF file. First tries digital text extraction,
-
-    then falls back to OCR if little to no text is found.
-    """
-    # 1. First try to extract text using pypdf
     try:
         reader = PdfReader(BytesIO(pdf_bytes))
         text = ""
@@ -34,7 +29,6 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     except Exception as e:
         print(f"pypdf extraction failed, falling back to OCR: {e}")
 
-    # 2. Scanned PDF fallback
     try:
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
         ocr_text = []
@@ -53,7 +47,6 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
 
 
 def extract_text_from_image(image_bytes: bytes) -> str:
-    """Extract text from image bytes using OCR."""
     try:
         img = Image.open(BytesIO(image_bytes)).convert("RGB")
         engine = get_ocr_engine()
@@ -67,7 +60,6 @@ def extract_text_from_image(image_bytes: bytes) -> str:
 
 
 def extract_text_from_file(file_bytes: bytes, filename: str) -> str:
-    """Helper function to extract text based on file type."""
     filename_lower = filename.lower()
     if filename_lower.endswith(".pdf"):
         return extract_text_from_pdf(file_bytes)
