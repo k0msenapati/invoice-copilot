@@ -5,6 +5,14 @@ An AI-powered web app to scan invoices, extract data, and view them in a dashboa
 ## What is it?
 Invoice Copilot is a tool that takes invoice files (PDFs or images), extracts the text, uses AI to pull out structured data (like total, tax, items, and sender info), and stores it in a local database for you to view on a dashboard.
 
+## Demo
+<a href="https://www.youtube.com/watch?v=907lnE1Rn4A">
+  <img
+    src="https://img.youtube.com/vi/907lnE1Rn4A/maxresdefault.jpg"
+    alt="Watch the video"
+    width="420">
+</a>
+
 ## Features
 * **File Upload:** Upload PDF, PNG, JPG, or JPEG invoices.
 * **Text Scanning (OCR):** Reads text from documents automatically.
